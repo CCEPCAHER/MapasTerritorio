@@ -2,42 +2,46 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Tarjeta de Territorio</title>
+  <title>Territorio</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-
-  <div id="controls">
-    <button id="toggleControlsBtn">Mostrar opciones</button>
-    <div id="controlPanel" class="collapsed">
-      <button id="startMarkingBtn">Iniciar marcación</button>
-      <button id="saveShapeBtn" disabled>Guardar figura</button>
-      <button id="undoPointBtn" disabled>Deshacer punto</button>
-      <button id="resetBtn" disabled>Reiniciar</button>
-      <button id="exportPdfBtn" disabled>Exportar PDF (A6)</button>
-      <button id="exportJpgBtn" disabled>Exportar JPG (A6)</button>
-
-      <label for="colorPicker">Color de línea:</label>
-      <input type="color" id="colorPicker" value="#007bff">
-
-      <label for="labelText">Texto libre:</label>
-      <input type="text" id="labelText" placeholder="Ej. Calle Diagonal">
-
-      <label for="textAngle">Ángulo:</label>
-      <input type="number" id="textAngle" value="0">
-
-      <label for="textSize">Tamaño:</label>
-      <input type="number" id="textSize" value="14">
-    </div>
-  </div>
-
-  <div id="map"></div>
-
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="script.js"></script>
+</head>
+<body>
+  <div id="controlPanel">
+    <button id="startMarkingBtn">Iniciar marcación</button>
+    <button id="undoPointBtn" disabled>Deshacer punto</button>
+    <button id="saveShapeBtn" disabled>Guardar figura</button>
+    <button id="resetBtn" disabled>Reiniciar todo</button>
+    <br><br>
+    <label>Color línea: <input type="color" id="colorPicker" value="#ff0000"></label>
+    <br>
+    <label>Etiqueta: <input type="text" id="labelText"></label><br>
+    <label>Ángulo: <input type="number" id="textAngle" value="0"></label>
+    <label>Tamaño: <input type="number" id="textSize" value="14"></label>
+    <br><br>
+    <button id="exportPdfBtn" disabled>Exportar PDF</button>
+    <button id="exportJpgBtn" disabled>Exportar JPG</button>
+  </div>
+  <button id="toggleControlsBtn">Ocultar opciones</button>
+  <div id="map"></div>
+
+  <!-- Modal de vista previa -->
+  <div id="previewModal" class="modal">
+    <div class="modal-content">
+      <span id="closeModal" class="close">&times;</span>
+      <h3>Vista previa del mapa</h3>
+      <img id="previewImage" src="" alt="Vista previa del territorio">
+      <div class="preview-buttons">
+        <button id="confirmPdf">Descargar PDF</button>
+        <button id="confirmJpg">Descargar JPG</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="script.js"></script>
 </body>
 </html>
