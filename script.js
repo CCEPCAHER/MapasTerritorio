@@ -160,57 +160,59 @@ function exportMap(type) {
   const group = L.featureGroup(allLayers);
   map.flyToBounds(group.getBounds(), { animate: false });
 
-  setTimeout(() => {
-    html2canvas(document.getElementById("map"), {
-      backgroundColor: "#ffffff",
-      useCORS: true,
-      scale: 2 // alta resolución
-    }).then(canvas => {
-      const imgData = canvas.toDataURL(
-        type === "jpg" ? "image/jpeg" : "image/png",
-        0.95
-      );
+  map.once("moveend", () => {
+    map.once("idle", () => {
+      html2canvas(document.getElementById("map"), {
+        backgroundColor: "#ffffff",
+        useCORS: true,
+        scale: 2 // alta resolución
+      }).then(canvas => {
+        const imgData = canvas.toDataURL(
+          type === "jpg" ? "image/jpeg" : "image/png",
+          0.95
+        );
 
-      const A6_WIDTH = 420;
-      const A6_HEIGHT = 297;
+        const A6_WIDTH = 420;
+        const A6_HEIGHT = 297;
 
-      if (type === "pdf") {
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({
-          orientation: "landscape",
-          unit: "px",
-          format: [A6_WIDTH, A6_HEIGHT]
-        });
+        if (type === "pdf") {
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF({
+            orientation: "landscape",
+            unit: "px",
+            format: [A6_WIDTH, A6_HEIGHT]
+          });
 
-        const lastTooltip = allLayers
-          .filter(layer => layer.getTooltip && layer.getTooltip())
-          .slice(-1)[0];
-        const title = lastTooltip?.getTooltip()?.getContent() || "Territorio";
+          const lastTooltip = allLayers
+            .filter(layer => layer.getTooltip && layer.getTooltip())
+            .slice(-1)[0];
+          const title = lastTooltip?.getTooltip()?.getContent() || "Territorio";
 
-        pdf.setFontSize(18);
-        pdf.setFont("helvetica", "bold");
-        pdf.text(title, A6_WIDTH / 2, 24, { align: "center" });
+          pdf.setFontSize(18);
+          pdf.setFont("helvetica", "bold");
+          pdf.text(title, A6_WIDTH / 2, 24, { align: "center" });
 
-        pdf.addImage(imgData, "PNG", 0, 30, A6_WIDTH, A6_HEIGHT - 30);
-        pdf.save("territorio-A6.pdf");
+          pdf.addImage(imgData, "PNG", 0, 30, A6_WIDTH, A6_HEIGHT - 30);
+          pdf.save("territorio-A6.pdf");
 
-      } else {
-        const canvas2 = document.createElement("canvas");
-        canvas2.width = A6_WIDTH;
-        canvas2.height = A6_HEIGHT;
-        const ctx = canvas2.getContext("2d");
-        ctx.fillStyle = "#fff";
-        ctx.fillRect(0, 0, A6_WIDTH, A6_HEIGHT);
-        ctx.drawImage(canvas, 0, 0, A6_WIDTH, A6_HEIGHT);
-        const link = document.createElement("a");
-        link.href = canvas2.toDataURL("image/jpeg", 0.95);
-        link.download = "territorio-A6.jpg";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
+        } else {
+          const canvas2 = document.createElement("canvas");
+          canvas2.width = A6_WIDTH;
+          canvas2.height = A6_HEIGHT;
+          const ctx = canvas2.getContext("2d");
+          ctx.fillStyle = "#fff";
+          ctx.fillRect(0, 0, A6_WIDTH, A6_HEIGHT);
+          ctx.drawImage(canvas, 0, 0, A6_WIDTH, A6_HEIGHT);
+          const link = document.createElement("a");
+          link.href = canvas2.toDataURL("image/jpeg", 0.95);
+          link.download = "territorio-A6.jpg";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+      });
     });
-  }, 700);
+  });
 }
 
 // Panel desplegable
