@@ -1,0 +1,75 @@
+html, body {
+  margin: 0;
+  height: 100%;
+  font-family: sans-serif;
+}
+
+#map {
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+}
+
+#controls {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 999;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 12px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+#controls button {
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#controls input[type="color"],
+#controls input[type="number"],
+#controls input[type="text"] {
+  height: 30px;
+  padding: 4px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+#startMarkingBtn { background-color: #28a745; color: white; }
+#saveShapeBtn { background-color: #17a2b8; color: white; }
+#undoPointBtn { background-color: #ffc107; color: black; }
+#resetBtn { background-color: #dc3545; color: white; }
+#exportPdfBtn { background-color: #007bff; color: white; }
+#exportJpgBtn { background-color: #6c757d; color: white; }
+
+button:disabled {
+  background-color: #cccccc !important;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.leaflet-tooltip.custom-label {
+  background-color: white;
+  color: black;
+  font-weight: bold;
+  border: 1px solid #333;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.custom-free-label {
+  font-weight: bold;
+  white-space: nowrap;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
