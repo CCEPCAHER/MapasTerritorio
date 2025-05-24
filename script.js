@@ -43,7 +43,7 @@ saveBtn.addEventListener("click", () => {
   }
 
   if (tempLayer) {
-    const nombre = prompt("Nombre de esta figura:", `Figura ${allLayers.length + 1}`) || `Figura ${allLayers.length + 1}`;
+    const nombre = prompt("Nombre de esta figura:", `Territorio ${allLayers.length + 1}`) || `Territorio ${allLayers.length + 1}`;
     const labelText = document.getElementById("labelText").value.trim();
     const angle = parseFloat(document.getElementById("textAngle").value) || 0;
     const fontSize = parseInt(document.getElementById("textSize").value) || 14;
@@ -77,7 +77,7 @@ saveBtn.addEventListener("click", () => {
   undoBtn.disabled = true;
   exportPdfBtn.disabled = false;
   exportJpgBtn.disabled = false;
-  alert("Figura guardada. Puedes crear otra.");
+  alert("Territorio guardado. Puedes crear otro.");
 });
 
 undoBtn.addEventListener("click", () => {
@@ -171,19 +171,41 @@ function exportMap(type) {
         0.95
       );
 
+      const A6_WIDTH = 420;  // aprox 148 mm
+      const A6_HEIGHT = 297; // aprox 105 mm
+
       if (type === "pdf") {
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF({
           orientation: "landscape",
           unit: "px",
-          format: [canvas.width, canvas.height]
+          format: [A6_WIDTH, A6_HEIGHT]
         });
-        pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
-        pdf.save("mapa-exportado.pdf");
+
+        const lastTooltip = allLayers
+          .filter(layer => layer.getTooltip && layer.getTooltip())
+          .slice(-1)[0];
+        const title = lastTooltip?.getTooltip()?.getContent() || "Territorio";
+
+        pdf.setFontSize(18);
+        pdf.setFont("helvetica", "bold");
+        pdf.text(title, A6_WIDTH / 2, 24, { align: "center" });
+
+        const mapTopOffset = 30;
+        pdf.addImage(imgData, "PNG", 0, mapTopOffset, A6_WIDTH, A6_HEIGHT - mapTopOffset);
+        pdf.save("territorio-A6.pdf");
+
       } else {
+        const canvas2 = document.createElement("canvas");
+        canvas2.width = A6_WIDTH;
+        canvas2.height = A6_HEIGHT;
+        const ctx = canvas2.getContext("2d");
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, A6_WIDTH, A6_HEIGHT);
+        ctx.drawImage(canvas, 0, 0, A6_WIDTH, A6_HEIGHT);
         const link = document.createElement("a");
-        link.href = imgData;
-        link.download = "mapa-exportado.jpg";
+        link.href = canvas2.toDataURL("image/jpeg", 0.95);
+        link.download = "territorio-A6.jpg";
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -192,7 +214,7 @@ function exportMap(type) {
   }, 700);
 }
 
-// Control de despliegue del panel
+// Panel desplegable
 const toggleBtn = document.getElementById("toggleControlsBtn");
 const controlPanel = document.getElementById("controlPanel");
 
