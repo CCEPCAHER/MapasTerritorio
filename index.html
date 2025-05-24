@@ -10,24 +10,27 @@
 <body>
 
   <div id="controls">
-    <button id="startMarkingBtn">Iniciar marcación</button>
-    <button id="saveShapeBtn" disabled>Guardar figura</button>
-    <button id="undoPointBtn" disabled>Deshacer punto</button>
-    <button id="resetBtn" disabled>Reiniciar</button>
-    <button id="exportPdfBtn" disabled>Exportar PDF</button>
-    <button id="exportJpgBtn" disabled>Exportar JPG</button>
+    <button id="toggleControlsBtn">Mostrar opciones</button>
+    <div id="controlPanel" class="collapsed">
+      <button id="startMarkingBtn">Iniciar marcación</button>
+      <button id="saveShapeBtn" disabled>Guardar figura</button>
+      <button id="undoPointBtn" disabled>Deshacer punto</button>
+      <button id="resetBtn" disabled>Reiniciar</button>
+      <button id="exportPdfBtn" disabled>Exportar PDF</button>
+      <button id="exportJpgBtn" disabled>Exportar JPG</button>
 
-    <label for="colorPicker">Color de línea:</label>
-    <input type="color" id="colorPicker" value="#007bff">
+      <label for="colorPicker">Color de línea:</label>
+      <input type="color" id="colorPicker" value="#007bff">
 
-    <label for="labelText">Texto libre:</label>
-    <input type="text" id="labelText" placeholder="Ej. Av. Diagonal">
+      <label for="labelText">Texto libre:</label>
+      <input type="text" id="labelText" placeholder="Ej. Av. Diagonal">
 
-    <label for="textAngle">Ángulo:</label>
-    <input type="number" id="textAngle" value="0">
+      <label for="textAngle">Ángulo:</label>
+      <input type="number" id="textAngle" value="0">
 
-    <label for="textSize">Tamaño:</label>
-    <input type="number" id="textSize" value="14">
+      <label for="textSize">Tamaño:</label>
+      <input type="number" id="textSize" value="14">
+    </div>
   </div>
 
   <div id="map"></div>
