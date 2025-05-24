@@ -1,8 +1,7 @@
 const map = L.map('map').setView([41.3851, 2.1701], 15);
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; OpenStreetMap & Carto',
-  subdomains: 'abcd',
+L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors',
   maxZoom: 20
 }).addTo(map);
 
@@ -164,15 +163,16 @@ function exportMap(type) {
   setTimeout(() => {
     html2canvas(document.getElementById("map"), {
       backgroundColor: "#ffffff",
-      useCORS: true
+      useCORS: true,
+      scale: 2 // alta resolución
     }).then(canvas => {
       const imgData = canvas.toDataURL(
         type === "jpg" ? "image/jpeg" : "image/png",
         0.95
       );
 
-      const A6_WIDTH = 420;  // aprox 148 mm
-      const A6_HEIGHT = 297; // aprox 105 mm
+      const A6_WIDTH = 420;
+      const A6_HEIGHT = 297;
 
       if (type === "pdf") {
         const { jsPDF } = window.jspdf;
@@ -191,8 +191,7 @@ function exportMap(type) {
         pdf.setFont("helvetica", "bold");
         pdf.text(title, A6_WIDTH / 2, 24, { align: "center" });
 
-        const mapTopOffset = 30;
-        pdf.addImage(imgData, "PNG", 0, mapTopOffset, A6_WIDTH, A6_HEIGHT - mapTopOffset);
+        pdf.addImage(imgData, "PNG", 0, 30, A6_WIDTH, A6_HEIGHT - 30);
         pdf.save("territorio-A6.pdf");
 
       } else {
