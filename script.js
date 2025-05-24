@@ -6,14 +6,14 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
   maxZoom: 20
 }).addTo(map);
 
-// Variables
+// Variables globales
 let isMarking = false;
 let currentPoints = [];
 let allLayers = [];
 let tempLayer = null;
 let selectedColor = document.getElementById("colorPicker").value;
 
-// Botones y entradas
+// Controles
 const startBtn = document.getElementById("startMarkingBtn");
 const saveBtn = document.getElementById("saveShapeBtn");
 const undoBtn = document.getElementById("undoPointBtn");
@@ -79,7 +79,6 @@ saveBtn.addEventListener("click", () => {
   undoBtn.disabled = true;
   exportPdfBtn.disabled = false;
   exportJpgBtn.disabled = false;
-
   alert("Figura guardada. Puedes crear otra.");
 });
 
@@ -162,11 +161,12 @@ function exportMap(type) {
   }
 
   const group = L.featureGroup(allLayers);
-  map.fitBounds(group.getBounds());
+  map.flyToBounds(group.getBounds(), { animate: false });
 
-  map.once("idle", () => {
+  setTimeout(() => {
     html2canvas(document.getElementById("map"), {
-      backgroundColor: "#ffffff"
+      backgroundColor: "#ffffff",
+      useCORS: true
     }).then(canvas => {
       const imgData = canvas.toDataURL(
         type === "jpg" ? "image/jpeg" : "image/png",
@@ -186,8 +186,10 @@ function exportMap(type) {
         const link = document.createElement("a");
         link.href = imgData;
         link.download = "mapa-exportado.jpg";
+        document.body.appendChild(link);
         link.click();
+        document.body.removeChild(link);
       }
     });
-  });
+  }, 700);
 }
