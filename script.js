@@ -1,10 +1,10 @@
 const map = L.map('map').setView([41.3851, 2.1701], 15);
 
-L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-  attribution: '&copy; OpenStreetMap contributors',
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap & Carto',
+  subdomains: 'abcd',
   maxZoom: 20
 }).addTo(map);
-
 let isMarking = false;
 let currentPoints = [];
 let allLayers = [];
