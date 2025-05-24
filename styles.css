@@ -1,12 +1,11 @@
 html, body {
   margin: 0;
-  padding: 0;
   height: 100%;
   font-family: sans-serif;
 }
 
 #map {
-  height: 100vh;
+  height: 100%;
   width: 100%;
   z-index: 1;
 }
@@ -80,6 +79,7 @@ button:disabled {
   border: 1px solid #333;
   padding: 4px 8px;
   border-radius: 4px;
+  box-shadow: none;
 }
 
 .custom-free-label {
