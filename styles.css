@@ -16,31 +16,39 @@ html, body {
   left: 10px;
   z-index: 999;
   background: rgba(255, 255, 255, 0.95);
-  padding: 12px;
+  padding: 8px;
   border-radius: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
+#toggleControlsBtn {
+  background-color: #343a40;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  cursor: pointer;
+}
+
+#controlPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#controlPanel.collapsed {
+  display: none;
+}
+
 #controls button {
-  padding: 8px 14px;
   font-size: 14px;
   font-weight: bold;
   border: none;
   border-radius: 4px;
+  padding: 8px 12px;
   cursor: pointer;
-}
-
-#controls input[type="color"],
-#controls input[type="number"],
-#controls input[type="text"] {
-  height: 30px;
-  padding: 4px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
 }
 
 #startMarkingBtn { background-color: #28a745; color: white; }
@@ -54,6 +62,14 @@ button:disabled {
   background-color: #cccccc !important;
   color: #666;
   cursor: not-allowed;
+}
+
+#controlPanel input {
+  height: 30px;
+  padding: 4px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 .leaflet-tooltip.custom-label {
