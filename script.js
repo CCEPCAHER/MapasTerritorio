@@ -6,14 +6,12 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
   maxZoom: 20
 }).addTo(map);
 
-// Variables globales
 let isMarking = false;
 let currentPoints = [];
 let allLayers = [];
 let tempLayer = null;
 let selectedColor = document.getElementById("colorPicker").value;
 
-// Controles
 const startBtn = document.getElementById("startMarkingBtn");
 const saveBtn = document.getElementById("saveShapeBtn");
 const undoBtn = document.getElementById("undoPointBtn");
@@ -193,3 +191,14 @@ function exportMap(type) {
     });
   }, 700);
 }
+
+// Control de despliegue del panel
+const toggleBtn = document.getElementById("toggleControlsBtn");
+const controlPanel = document.getElementById("controlPanel");
+
+toggleBtn.addEventListener("click", () => {
+  controlPanel.classList.toggle("collapsed");
+  toggleBtn.textContent = controlPanel.classList.contains("collapsed")
+    ? "Mostrar opciones"
+    : "Ocultar opciones";
+});
