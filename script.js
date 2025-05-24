@@ -39,7 +39,7 @@ toggleBtn.textContent = controlPanel.classList.contains("collapsed") ? "Mostrar 
 colorPicker.addEventListener("input", (e) => {
   selectedColor = e.target.value;
   if (tempLayer && isMarking && tempLayer.setStyle) {
-    const style = { color: selectedColor, weight: 3, fillOpacity: 0.1, fillColor: selectedColor, dashArray: '5, 5' };
+    const style = { color: selectedColor, weight: 3, fillOpacity: 0, fillColor: "transparent", dashArray: '5, 5' };
     const pointStyle = { radius: 6, color: selectedColor, fillColor: selectedColor, fillOpacity: 0.5 };
     if (currentPoints.length >= 2) tempLayer.setStyle(style);
     else tempLayer.setStyle(pointStyle);
@@ -49,7 +49,7 @@ colorPicker.addEventListener("input", (e) => {
 // Dibujar figura temporal
 function drawTemporaryShape() {
   if (tempLayer) map.removeLayer(tempLayer);
-  const style = { color: selectedColor, weight: 3, fillOpacity: 0.1, fillColor: selectedColor, dashArray: '5, 5' };
+  const style = { color: selectedColor, weight: 3, fillOpacity: 0, fillColor: "transparent", dashArray: '5, 5' };
   const pointStyle = { radius: 6, color: selectedColor, fillColor: selectedColor, fillOpacity: 0.5 };
 
   if (currentPoints.length >= 3)
@@ -114,7 +114,7 @@ saveBtn.addEventListener("click", () => {
     tempLayer.bindTooltip(nombre, { permanent: true, direction: "center", className: "custom-label" }).openTooltip(center);
 
     const finalStyle = {
-      color: selectedColor, weight: 2, fillColor: selectedColor, fillOpacity: 0.2, dashArray: null
+      color: selectedColor, weight: 2, fillColor: "transparent", fillOpacity: 0, dashArray: null
     };
     const finalPointStyle = {
       radius: 6, color: selectedColor, fillColor: selectedColor, fillOpacity: 0.5
@@ -168,7 +168,7 @@ resetBtn.addEventListener("click", () => {
   exportJpgBtn.disabled = true;
 });
 
-// Exportar (referencia, función completa se define por separado)
+// Exportar
 exportPdfBtn.addEventListener("click", () => exportMap("pdf"));
 exportJpgBtn.addEventListener("click", () => exportMap("jpg"));
 function exportMap(type) {
@@ -177,91 +177,87 @@ function exportMap(type) {
     return;
   }
 
-  const bounds = L.featureGroup(allLayers.filter(l => l instanceof L.Path || l instanceof L.Marker)).getBounds();
-  map.flyToBounds(bounds, { animate: false, padding: [40, 40] });
+  // Ocultar controles antes de capturar
+  html2canvas(document.getElementById("map"), {
+    backgroundColor: "#ffffff",
+    useCORS: true,
+    scale: 2,
+    onclone: (doc) => {
+      const hide = ['.leaflet-control-container', '#controlPanel', '#toggleControlsBtn'];
+      hide.forEach(sel => {
+        doc.querySelectorAll(sel).forEach(el => el.style.display = 'none');
+      });
+    }
+  }).then(canvas => {
+    const imgData = canvas.toDataURL("image/png");
+    const originalWidth = canvas.width;
+    const originalHeight = canvas.height;
 
-  map.once("moveend", () => {
-    html2canvas(document.getElementById("map"), {
-      backgroundColor: "#ffffff",
-      useCORS: true,
-      scale: 2,
-      onclone: (doc) => {
-        const hide = ['.leaflet-control-container', '#controlPanel', '#toggleControlsBtn'];
-        hide.forEach(sel => {
-          doc.querySelectorAll(sel).forEach(el => el.style.display = 'none');
-        });
+    if (type === "pdf") {
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a6" });
+
+      const title = allLayers.find(l => l.getTooltip)?.getTooltip()?.getContent() || "Territorio";
+
+      pdf.setFontSize(14);
+      pdf.setFont("helvetica", "bold");
+      pdf.text(title, 148 / 2, 10, { align: 'center' });
+
+      const margin = 7;
+      const contentW = 148 - margin * 2;
+      const contentH = 105 - margin * 2 - 10;
+      const imgRatio = originalWidth / originalHeight;
+      const boxRatio = contentW / contentH;
+
+      let drawW, drawH;
+      if (imgRatio > boxRatio) {
+        drawW = contentW;
+        drawH = contentW / imgRatio;
+      } else {
+        drawH = contentH;
+        drawW = contentH * imgRatio;
       }
-    }).then(canvas => {
-      const imgData = canvas.toDataURL("image/png");
-      const originalWidth = canvas.width;
-      const originalHeight = canvas.height;
 
-      if (type === "pdf") {
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a6" });
+      const x = (148 - drawW) / 2;
+      const y = 10 + (contentH - drawH) / 2;
+      pdf.addImage(imgData, "PNG", x, y, drawW, drawH);
+      pdf.save("territorio-A6.pdf");
+    } else if (type === "jpg") {
+      const canvasJPG = document.createElement("canvas");
+      canvasJPG.width = 420;
+      canvasJPG.height = 297;
+      const ctx = canvasJPG.getContext("2d");
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, 420, 297);
 
-        const title = allLayers.find(l => l.getTooltip)?.getTooltip()?.getContent() || "Territorio";
-
-        pdf.setFontSize(14);
-        pdf.setFont("helvetica", "bold");
-        pdf.text(title, 148 / 2, 10, { align: 'center' });
-
-        const margin = 7;
-        const contentW = 148 - margin * 2;
-        const contentH = 105 - margin * 2 - 10;
+      const image = new Image();
+      image.onload = () => {
         const imgRatio = originalWidth / originalHeight;
-        const boxRatio = contentW / contentH;
-
+        const targetRatio = 420 / 297;
         let drawW, drawH;
-        if (imgRatio > boxRatio) {
-          drawW = contentW;
-          drawH = contentW / imgRatio;
+        if (imgRatio > targetRatio) {
+          drawW = 420;
+          drawH = 420 / imgRatio;
         } else {
-          drawH = contentH;
-          drawW = contentH * imgRatio;
+          drawH = 297;
+          drawW = 297 * imgRatio;
         }
 
-        const x = (148 - drawW) / 2;
-        const y = 10 + (contentH - drawH) / 2;
-        pdf.addImage(imgData, "PNG", x, y, drawW, drawH);
-        pdf.save("territorio-A6.pdf");
-      } else if (type === "jpg") {
-        const canvasJPG = document.createElement("canvas");
-        canvasJPG.width = 420;
-        canvasJPG.height = 297;
-        const ctx = canvasJPG.getContext("2d");
-        ctx.fillStyle = "#fff";
-        ctx.fillRect(0, 0, 420, 297);
+        const dx = (420 - drawW) / 2;
+        const dy = (297 - drawH) / 2;
+        ctx.drawImage(image, dx, dy, drawW, drawH);
 
-        const image = new Image();
-        image.onload = () => {
-          const imgRatio = originalWidth / originalHeight;
-          const targetRatio = 420 / 297;
-          let drawW, drawH;
-          if (imgRatio > targetRatio) {
-            drawW = 420;
-            drawH = 420 / imgRatio;
-          } else {
-            drawH = 297;
-            drawW = 297 * imgRatio;
-          }
-
-          const dx = (420 - drawW) / 2;
-          const dy = (297 - drawH) / 2;
-          ctx.drawImage(image, dx, dy, drawW, drawH);
-
-          const jpgURL = canvasJPG.toDataURL("image/jpeg", 0.92);
-          const link = document.createElement("a");
-          link.href = jpgURL;
-          link.download = "territorio-A6.jpg";
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        };
-        image.src = imgData;
-      }
-    }).catch(err => {
-      alert("Error exportando el mapa: " + err.message);
-    });
+        const jpgURL = canvasJPG.toDataURL("image/jpeg", 0.92);
+        const link = document.createElement("a");
+        link.href = jpgURL;
+        link.download = "territorio-A6.jpg";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
+      image.src = imgData;
+    }
+  }).catch(err => {
+    alert("Error exportando el mapa: " + err.message);
   });
 }
