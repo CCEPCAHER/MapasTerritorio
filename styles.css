@@ -1,130 +1,211 @@
+/* Estilos Generales */
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent; /* Evita el resaltado azul en móviles al tocar */
 }
 
 body, html {
   margin: 0;
   padding: 0;
   height: 100%;
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #f4f4f4;
+  width: 100%;
+  font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+  background-color: #f0f2f5;
   overflow: hidden; /* Evita el scroll en el body */
 }
 
 #map {
   width: 100%;
-  height: 100vh; /* Ocupa el 100% del alto del viewport */
-  position: relative; /* Asegura que los controles estén posicionados correctamente */
+  height: 100vh;
+  position: relative;
+  background-color: #e0e0e0; /* Color de fondo mientras carga el mapa */
 }
 
 /* Contenedor oculto para la exportación */
 #exportMapContainer {
   position: absolute;
-  top: -9999px; /* Mueve el contenedor fuera de la vista */
-  left: -9999px;
-  /* Estas dimensiones se establecerán dinámicamente en JS antes de la captura */
-  width: 12cm;
-  height: 8cm;
-  overflow: hidden; /* Oculta cualquier desbordamiento si el contenido es más grande */
-  background-color: white; /* Fondo blanco para la exportación */
+  top: -99999px; /* Bien lejos de la vista */
+  left: -99999px;
+  /* Dimensiones en px para consistencia con html2canvas, equivalentes a 12x8cm a 96dpi */
+  /* width: 453.54px; */ /* 12cm */
+  /* height: 302.36px; */ /* 8cm */
+  /* Estas se definirán dinámicamente en JS antes de la captura */
+  overflow: hidden;
+  background-color: white;
   z-index: -1;
-  /* Deberá ser display: block; temporalmente en JS para la captura */
-  display: none;
+  display: none; /* Inicialmente oculto */
 }
 
-/* Panel de control */
+/* Panel de Control */
 #controlPanel {
   position: absolute;
   top: 10px;
   left: 10px;
-  background: white;
-  padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 0; /* Padding se maneja en content */
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
   z-index: 1000;
-  width: 270px;
+  width: 280px;
+  max-height: calc(100vh - 80px); /* Altura máxima para evitar desbordamiento, deja espacio para toggle */
   display: flex;
   flex-direction: column;
-  gap: 10px; /* Espacio entre elementos */
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+  transform: translateX(0);
+  opacity: 1;
+}
+
+#controlPanel.collapsed {
+  transform: translateX(-110%);
+  opacity: 0;
+  pointer-events: none; /* Evita interacción cuando está oculto */
+}
+
+.panel-header {
+  background-color: #0078d4;
+  color: white;
+  padding: 10px 15px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.panel-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.panel-content {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto; /* Scroll si el contenido es muy largo */
 }
 
 #controlPanel label {
   display: block;
   font-size: 13px;
-  font-weight: bold;
+  font-weight: 500;
   color: #333;
+  margin-bottom: -5px; /* Reduce espacio con input */
 }
 
-#controlPanel input:not([type="color"]) {
+#controlPanel input:not([type="color"]),
+#controlPanel input[type="number"] {
   width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 9px 12px;
+  border: 1px solid #d1d1d1;
+  border-radius: 6px;
   font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#controlPanel input:not([type="color"]):focus,
+#controlPanel input[type="number"]:focus {
+  border-color: #0078d4;
+  box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.3);
+  outline: none;
 }
 
 #controlPanel input[type="color"] {
   width: 100%;
-  height: 35px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  height: 40px;
+  border: 1px solid #d1d1d1;
+  border-radius: 6px;
   cursor: pointer;
 }
 
 #controlPanel button {
   width: 100%;
-  padding: 10px;
+  padding: 10px 15px;
   background-color: #0078d4;
   color: white;
   border: none;
-  border-radius: 4px;
-  font-weight: bold;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 #controlPanel button:hover:not(:disabled) {
-  background-color: #005bb5;
+  background-color: #005fa3;
+  transform: translateY(-1px);
+}
+
+#controlPanel button:active:not(:disabled) {
+  transform: translateY(0px);
 }
 
 #controlPanel button:disabled {
-  background-color: #aaa;
+  background-color: #b0b0b0;
+  color: #f0f0f0;
   cursor: not-allowed;
+}
+
+.separator {
+  border: none;
+  height: 1px;
+  background-color: #e0e0e0;
+  margin: 10px 0;
+}
+
+#controlPanel h4 {
+  margin: 5px 0 0 0;
+  font-size: 14px;
+  color: #0078d4;
+  font-weight: 600;
 }
 
 /* Botón para desplegar/ocultar el panel */
 #toggleControlsBtn {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 15px;
+  left: 15px; /* Inicialmente cerca de donde estaría el panel */
   background: #0078d4;
   color: white;
-  padding: 8px 12px;
+  width: 40px;
+  height: 40px;
   border: none;
-  border-radius: 4px;
-  z-index: 1001;
-  font-weight: bold;
+  border-radius: 50%; /* Botón redondo */
+  z-index: 1001; /* Encima del panel si se solapan durante la transición */
+  font-size: 20px; /* Tamaño del icono hamburguesa */
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  transition: background-color 0.2s ease, transform 0.3s ease-out;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #toggleControlsBtn:hover {
-  background-color: #005bb5;
+  background-color: #005fa3;
 }
 
-#controlPanel.collapsed {
-  display: none;
+#controlPanel.collapsed + #toggleControlsBtn {
+  /* Cuando el panel está oculto, el botón permanece visible */
 }
+
+#controlPanel:not(.collapsed) + #toggleControlsBtn {
+  /* Cuando el panel está visible, el botón se mueve un poco para no solaparse */
+  transform: translateX(calc(280px + 10px)); /* ancho del panel + un pequeño margen */
+}
+
 
 /* Estilo para las etiquetas de Leaflet (nombres de los territorios) */
 .custom-label {
-  background: rgba(255,255,255,0.85);
-  padding: 2px 6px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  font-size: 13px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 3px 8px;
+  border-radius: 5px;
+  border: 1px solid #bbb;
+  font-size: 12px;
   font-weight: bold;
-  white-space: nowrap; /* Evita que el texto se rompa */
+  color: #333;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 /* Estilo para las etiquetas de texto libre */
@@ -133,11 +214,14 @@ body, html {
   justify-content: center;
   align-items: center;
   text-align: center;
+  font-weight: 500; /* Ligeramente menos bold que los tooltips */
+  white-space: nowrap;
+  /* El color y tamaño se aplican inline desde JS */
 }
 
 /* Modal de vista previa */
 .modal {
-  display: none;
+  display: none; /* Se cambia a flex con JS */
   position: fixed;
   z-index: 9999;
   left: 0;
@@ -145,121 +229,154 @@ body, html {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgba(0,0,0,0.7); /* Fondo oscuro semitransparente */
-  backdrop-filter: blur(5px); /* Efecto blur */
-  -webkit-backdrop-filter: blur(5px); /* Compatibilidad Safari */
-  display: flex; /* Centrar contenido con flexbox */
+  background-color: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   justify-content: center;
   align-items: center;
+  padding: 20px; /* Espacio para que el modal no toque los bordes */
 }
 
 .modal-content {
   background-color: #fff;
-  padding: 20px;
+  padding: 25px 30px;
   width: 90%;
-  max-width: 700px; /* Aumentado ligeramente para mejor vista */
+  max-width: 650px; /* Ajustado para la proporción de la imagen */
   text-align: center;
-  border-radius: 10px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
   position: relative;
-  animation: fadeIn 0.3s ease-out; /* Animación de entrada */
+  animation: fadeInModal 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes fadeInModal {
+  from { opacity: 0; transform: translateY(-30px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .modal-content h2 {
   margin-top: 0;
-  color: #333;
-  font-size: 24px;
-  margin-bottom: 20px;
+  color: #2c3e50;
+  font-size: 22px;
+  margin-bottom: 15px;
 }
 
-.modal-content img {
+#previewImageContainer {
+  width: 100%;
+  /* Aspect ratio 12:8 = 3:2 */
+  aspect-ratio: 12 / 8;
+  background-color: #f0f0f0; /* Fondo para la imagen */
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden; /* Para que la imagen se ajuste */
+  margin: 0 auto 10px auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#previewImageContainer img {
+  display: block;
   max-width: 100%;
-  height: auto;
-  border: 1px solid #eee;
-  border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  display: block; /* Para centrar la imagen */
-  margin: 0 auto 20px auto;
+  max-height: 100%;
+  height: auto; /* Mantiene aspect ratio de la imagen original */
+  object-fit: contain; /* Asegura que toda la imagen sea visible */
+}
+
+.preview-dimensions {
+    font-size: 0.85em;
+    color: #555;
+    margin-bottom: 20px;
 }
 
 .close {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
+  color: #888;
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 30px;
   font-weight: bold;
   cursor: pointer;
-  position: absolute;
-  top: 10px;
-  right: 20px;
   transition: color 0.2s ease;
+  line-height: 1;
 }
 
 .close:hover,
 .close:focus {
-  color: #555;
-  text-decoration: none;
+  color: #e74c3c;
 }
 
 .preview-buttons {
   display: flex;
   justify-content: center;
-  gap: 15px; /* Espacio entre botones */
-  margin-top: 15px;
+  gap: 15px;
+  margin-top: 20px;
 }
 
 .preview-buttons button {
-  padding: 12px 20px;
+  padding: 12px 25px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   color: white;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  font-size: 16px;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  font-size: 15px;
 }
 
 #confirmExportBtn {
-  background: #28a745; /* Verde para confirmar */
+  background-color: #2ecc71; /* Verde más moderno */
 }
-
 #confirmExportBtn:hover {
-  background-color: #218838;
+  background-color: #27ae60;
+  transform: translateY(-1px);
 }
 
 #cancelExportBtn {
-  background: #dc3545; /* Rojo para cancelar */
+  background-color: #e74c3c; /* Rojo más moderno */
+}
+#cancelExportBtn:hover {
+  background-color: #c0392b;
+  transform: translateY(-1px);
 }
 
-#cancelExportBtn:hover {
-  background-color: #c82333;
+/* Leaflet Rotate Control */
+.leaflet-control-rotate {
+    /* Estilos personalizados si son necesarios, por defecto son buenos */
 }
 
 /* Responsive */
 @media (max-width: 768px) {
   #controlPanel {
-    width: 90%;
-    left: 5%;
-    right: 5%;
-    top: 10px; /* Ajuste para evitar que se solape con el botón de toggle en pantallas pequeñas */
-    padding: 12px;
-    gap: 8px;
+    width: calc(100% - 20px); /* Casi todo el ancho, con márgenes */
+    left: 10px;
+    right: 10px;
+    max-height: calc(100vh - 70px); /* Deja espacio para el botón de toggle inferior */
+    bottom: auto; /* Anula el 'bottom' si se define para pantallas más grandes */
   }
 
-  #toggleControlsBtn {
+  #controlPanel:not(.collapsed) + #toggleControlsBtn {
+    /* En móvil, el botón toggle se va abajo a la derecha cuando el panel está abierto */
     top: auto;
-    bottom: 10px; /* Mueve el botón de toggle a la parte inferior en móviles */
-    right: 10px;
+    bottom: 15px;
     left: auto;
+    right: 15px;
+    transform: translateX(0); /* Resetear transformación */
   }
+  #controlPanel.collapsed + #toggleControlsBtn {
+    /* Cuando el panel está colapsado, el botón está arriba a la izquierda */
+    top: 15px;
+    left: 15px;
+    bottom: auto;
+    right: auto;
+    transform: translateX(0);
+  }
+
 
   .modal-content {
-    padding: 15px;
-    margin: 10% auto; /* Ajuste de margen para móvil */
+    padding: 20px;
+    margin: 5% auto;
+    width: 95%;
   }
 
   .modal-content h2 {
@@ -267,7 +384,7 @@ body, html {
   }
 
   .preview-buttons {
-    flex-direction: column; /* Apila los botones en pantallas pequeñas */
+    flex-direction: column;
     gap: 10px;
   }
 
@@ -278,8 +395,43 @@ body, html {
 
 @media (max-width: 480px) {
   #controlPanel {
-    width: 95%;
-    left: 2.5%;
-    padding: 10px;
+    border-radius: 0; /* Ocupa todo el ancho, sin bordes redondeados arriba */
+    width: 100%;
+    left: 0;
+    top: 0;
+    max-height: 100vh; /* Puede ocupar toda la altura */
+    border-bottom: 1px solid #ddd;
+    box-shadow: none;
+  }
+  #controlPanel.collapsed {
+      transform: translateY(-105%); /* Deslizar hacia arriba */
+  }
+
+  #controlPanel:not(.collapsed) + #toggleControlsBtn {
+    /* Icono de cerrar (X) cuando el panel está abierto */
+    content: '\00D7'; /* '×' character */
+    font-size: 28px;
+    top: 15px;
+    right: 15px;
+    left: auto;
+    bottom: auto;
+  }
+  #controlPanel.collapsed + #toggleControlsBtn {
+    /* Icono hamburguesa cuando está cerrado */
+    content: '☰';
+    font-size: 20px;
+    top: 15px;
+    left: 15px;
+  }
+
+  .panel-header {
+    border-radius: 0;
+  }
+  .panel-content {
+    max-height: calc(100vh - 60px); /* Ajustar altura del contenido */
+  }
+
+  .modal-content {
+    padding: 15px;
   }
 }
