@@ -489,7 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const canvas = await html2canvas(tempPreviewContainer, {
                 backgroundColor: "#ffffff", 
                 useCORS: true, 
-                scale: 1, // Preview scale
+                scale: 3, // Preview scale
                 logging: false, // Set to true for debugging html2canvas issues
                  onclone: (clonedDoc) => {
                     // This is a good place to inspect the cloned document if rendering fails
@@ -542,7 +542,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const canvas = await html2canvas(exportMapContainer, {
                 backgroundColor: "#ffffff", 
                 useCORS: true, 
-                scale: 2, // Higher scale for better export quality
+                scale: 3, // Higher scale for better export quality
                 logging: false, // Set to true for debugging
                 scrollX: 0, 
                 scrollY: 0,
