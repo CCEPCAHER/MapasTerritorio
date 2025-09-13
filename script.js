@@ -231,7 +231,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 format: [CARD_WIDTH_CM * 10, CARD_HEIGHT_CM * 10]
             });
             pdf.addImage(canvas.toDataURL('image/png', 1.0), "PNG", 0, 0, CARD_WIDTH_CM * 10, CARD_HEIGHT_CM * 10);
-            pdf.save(`Territorio_${territory.name.replace(/ /g, '_')}.pdf`);
+            pdf.save(\`Territorio_{territory.name.replace(/[\/:"*?<>| ]/g, '_')}.pdf`);
+
             
             // 4. Limpieza
             document.body.removeChild(cardContainer);
